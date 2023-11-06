@@ -832,6 +832,7 @@ public class ContactsManager extends ReactContextBaseJavaModule implements Activ
         String department = contact.hasKey("department") ? contact.getString("department") : null;
         String note = contact.hasKey("note") ? contact.getString("note") : null;
         String thumbnailPath = contact.hasKey("thumbnailPath") ? contact.getString("thumbnailPath") : null;
+        boolean isStarred = contact.hasKey("isStarred") ? contact.getBoolean("isStarred") : false;
 
         ReadableArray phoneNumbers = contact.hasKey("phoneNumbers") ? contact.getArray("phoneNumbers") : null;
         int numOfPhones = 0;
@@ -959,6 +960,11 @@ public class ContactsManager extends ReactContextBaseJavaModule implements Activ
                 .withValue(StructuredName.PREFIX, prefix)
                 .withValue(StructuredName.SUFFIX, suffix);
         ops.add(op.build());
+
+        op = ContentProviderOperation.newUpdate(ContactsContract.Contacts.CONTENT_URI)
+                .withSelection(ContactsContract.Contacts._ID + "=?", new String[]{String.valueOf(recordID)})
+                .withValue(ContactsContract.Contacts.STARRED, isStarred ? 1 : 0);
+        ops.add(op.build());    
 
         op = ContentProviderOperation.newUpdate(ContactsContract.Data.CONTENT_URI)
                 .withSelection(ContactsContract.Data.CONTACT_ID + "=? AND " + ContactsContract.Data.MIMETYPE + " = ?", new String[]{String.valueOf(recordID), Organization.CONTENT_ITEM_TYPE})
